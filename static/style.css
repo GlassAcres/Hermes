@@ -1,0 +1,669 @@
+/* Import Google font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Noto Sans:wght@400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  font-size: .9rem;
+  font-weight:500;
+  line-height: 1.4;
+}
+
+body {
+  background: #f3f1f3, 80%;
+  display: flex;
+  align-items: stretch;
+  border-radius: 10px;
+
+  
+  
+}
+
+.chatbot-toggler {
+  position: fixed;
+  bottom: 30px;
+  right: 35px;
+  outline: none;
+  border: none;
+  height: 50px;
+  width: 50px;
+  display: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #6b75ffff; /* Red color */
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.chatbot-toggler span {
+  color: #fff;
+  position: absolute;
+}
+
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child {
+  opacity: 0;
+}
+
+body.show-chatbot .chatbot-toggler span:last-child {
+  opacity: 1;
+}
+
+/* Thread List Icon */
+.thread-dropdown-icon {
+  position: relative;
+  display: flex;
+  align-items: left ;
+  height: 3rem;
+}
+
+.chatbot-container {
+    position: absolute;
+    border-radius: 10px;    
+/* Set the height to match the chatbot */
+    display: contents;
+  
+}
+
+
+.thread-list-container {
+    display: none;
+    position: fixed;
+    transform: translateX(-100%); /* Adjust based on your header's height */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 18rem;
+    height: 100%;
+    background: #6b75ffff;
+    transition: left 0.6s ease;
+    overflow-y: auto;
+    z-index: 100; /* Ensure it's above other elements */
+    /* Add more styling as needed */
+}
+
+/* Style when the dropdown is active */
+.thread-list-container.active {
+    transform: translateX(0%);/* Adjust the value to position it to the left */
+    display: block;
+}
+.thread-list-container.inactive{
+    display: none;
+}
+
+#thread-dropdown-icon {
+    position: fixed;
+    height: 2.5rem;
+    margin-top: -1.9rem;
+    color: #000000;
+    left: 1rem;
+}
+.thread-item {
+    margin-right: 1.5rem;
+    margin-left: 1.5rem;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 10px;
+}
+
+.thread-item:hover {
+    background-color: #9897f2; /* Slightly darker on hover */
+  
+}
+
+.thread-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #ffffff; /* Red color for title */
+    height: 3rem;
+}
+
+.thread-detail {
+    font-size: 0.9em;
+    color: #ffffff; /* Darker grey for subtext */
+}
+
+.thread-category {
+    font-size: 1em;
+    font-weight: bold;
+    color: #ada9a9; /* Dark grey for category heading */
+    padding-left: 10px;
+    padding-right: 1rem;
+    margin-top: 5rem;
+    margin-bottom: 5px;
+}
+
+
+
+/* Landing Page Layer Styles */
+#landingPage {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(255, 255, 255, .8);
+  display: flex;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  z-index: 10; /* Ensure it's above the chatbot container */
+  backdrop-filter: blur(5px); /* Add blur effect */
+}
+
+#landingPageContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+#landingPageContent p {
+  font-size: 2vh;
+  color: #1c1c1c;
+  margin: 20px 50px;
+  text-align: center;
+  z-index:12;
+}
+
+#landingPageContent img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.landing-video {
+  height: 25vh; /* Adjust the maximum width as needed */
+  border-radius: 10px;
+  margin-bottom: 20vh;
+  z-index:12;
+}
+
+.chatbot {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    color: #ebebeb;
+    border-radius: 10px;
+    overflow-y: auto;
+    pointer-events: auto;
+    transform-origin: bottom right;
+    box-shadow: 0 0 128px 0 rgba(0,0,0,0.5),
+                0 32px 64px -48px rgba(0,0,0,0.5);
+    transition: all 0.1s ease;
+  }
+
+body.show-chatbot .chatbot {
+  opacity: 1;
+  pointer-events: auto;
+  filter: none;
+  transform: scale(1);
+}
+
+
+
+.chatbot header {
+  padding: 16px 0; 
+  position: relative;
+  border-radius: 10px, 0 , 10px, 0;
+  text-align: center;
+  color: #ffffff;
+  font-weight: bolder;
+  background: #6b75ffff;
+
+  z-index: 1000  ;
+}
+
+.chatbot header span {
+  position: relative;
+  cursor: pointer;
+ 
+}
+
+header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: .5rem;
+}
+
+.chatbot .chatbox {
+  overflow-y: auto;
+  padding: 12px;
+  /* bottom: 2rem; */
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  height: 90%;
+  padding-bottom: 5rem;
+}
+
+.chatbox .chat {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  margin-top: 1rem;
+  }
+}
+
+#prompt-suggestions {
+    transition: all 0.5s ease-in-out; /* Smooth transition for sliding and fading */
+    transform: translateY(0); /* Start in the original position */
+    opacity: 1; /* Fully visible */
+}
+
+/* State of prompt suggestions container when hidden */
+#prompt-suggestions.hide {
+     /* Slide down */
+    opacity: 0; /* Fade out */
+    pointer-events: none; /* Prevent interaction while hidden */
+}
+
+.prompt-suggestions{
+  display: flex;
+  position: fixed;
+  margin-bottom: 3rem;
+  overflow-y: auto;
+  height: 7rem;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: none;
+  transition: all 0.4s ease-in-out;
+  transform: translateY(0);
+  opacity: 1;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: nowrap;
+
+  /* Add styles for prompt buttons */
+.prompt-button {
+    display: inline-block; /* Or 'block' if you prefer */
+    padding: 0.2rem;
+    width: 14rem;
+    font-size: .8rem;
+    margin: 5px;
+    height: 4.2rem;
+    background: none;
+    border: 1px solid #6b75ffff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  } /* Smooth background color change on hover */
+    &.animate {
+            animation: slideAndFade 0.5s ease forwards;
+        }
+  }
+
+.prompt-button:hover {
+    background-color: #c0bfbf; /* Darken button on hover */
+  }
+}
+
+@media (max-width: 600px) {
+    /* Hide all prompt buttons when screen width is 600px or less */
+    #prompt-suggestions .prompt-button {
+        display: none;
+    }
+
+    /* Show only the first two prompt buttons */
+    #prompt-suggestions .prompt-button:nth-child(-n+2) {
+        display: inline-block;
+    }
+}
+
+.chatbox .outgoing {
+  margin: 18px 0;
+  border-radius: 10px 10px 0 10px;
+  display: flex;
+  flex-direction: row-reverse;
+  .image {
+    margin-top: 4px;
+  }
+  
+}
+
+.chatbox .outgoing p {
+  margin: 10px !important;
+}
+
+.chatbox .incoming span {
+  min-width: 30px;
+  height: 2rem;
+  color: #fff;
+  cursor: default;
+  text-align: center;
+  font-size: 1.5rem;
+  padding-top: 0.5rem;
+  align-self: end;
+  background:#6b75ffff;
+  border-radius: 4px;
+  margin: 0 9px -5px 0;
+}
+
+.user-icon {
+  display: flex;
+  align-self: flex-end;
+     /* Adjust size as needed */
+  height: 2.2rem;
+  margin-top: 12px;
+  margin-left: -16px;
+  margin-right: -15px;
+}
+
+
+.chatbox .chat p {
+   word-wrap: break-word; /* Corrected property for wrapping text */
+  padding: 1.5vh;
+  border-radius: 10px 10px 0px 10px;
+  color: #fff;
+  font-size: .8rem;
+  background: #6b75ffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease;
+  -webkit-font-smoothing: antialiased; /* For Webkit browsers */
+  -moz-osx-font-smoothing: grayscale; /* For Firefox */
+}
+
+
+.chatbox .chat .code-container {
+    background: #2d2d2d; /* Dark background for code blocks */
+    padding: 10px;
+    border-radius: 8px;
+    overflow: wrap; /* To contain the inner scrollable pre element */
+    max-width: 100%; /* Ensure it fits within the chat bubble */
+    margin-bottom: 5px;
+}
+
+/* Style for the actual code block (pre and code tags) */
+.chatbox .chat pre {
+    margin: 0;
+    white-space: pre; /* Preserve formatting */
+    overflow-x: auto; /* Horizontal scrolling */
+}
+
+.chatbox .chat code {
+    display: block;
+    padding: 0;
+    overflow-y: auto; /* Vertical scrolling */
+    font-family: monospace; /* Font for code */
+    color: #f8f8f2; /* Light text color */
+}
+.chatbox .chat p * {
+  box-shadow: none;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  padding: 1.5px;
+  border-radius: 0;
+}
+
+/* Styles for Markdown headers */
+.chatbox .chat h1 { font-size: 1.5em; }
+.chatbox .chat h2 { font-size: 1.4em; }
+.chatbox .chat h3 { font-size: 1.3em; }
+.chatbox .chat h4 { font-size: 1.2em; }
+.chatbox .chat h5 { font-size: 1.1em; }
+.chatbox .chat h6 { font-size: 1em; }
+
+.chatbox .chat pre[class*="language-"],
+.chatbox .chat code[class*="language-"] {
+  background: #2d2d2d; /* Dark background for code blocks */
+  color: #f8f8f2; /* Light text color for code */
+  text-shadow: none; /* No text shadow */
+  font-family: 'Source Code Pro', monospace; /* Monospaced font */
+  padding: 0.5em; /* Padding inside code blocks */
+  margin: 0.5em 0; /* Margin around code blocks */
+  border-radius: 10px; /* Rounded corners */
+  overflow-x: overflow; /* Horizontal scrolling for long code */
+}
+
+/* Specific styles for strong, em, and list items */
+.chatbox .chat p strong {
+  font-weight: bold;
+}
+
+.chatbox .chat p em {
+  font-style: italic;
+}
+
+.chatbox .chat ul{
+  padding-left: 10px;
+  list-style: bullets;
+}
+
+.chatbox .chat ol {
+  padding-left: 20px;
+  list-style: decimal;
+}
+
+.chatbox .chat ul ul {
+  padding-left: 10px
+  list-style: circle;
+}
+
+.chatbox .chat ol ul{
+  padding-left: 10px;
+  list-style: square;
+}
+
+.chatbox .chat ul ol{
+  padding-left: 10px;
+  list-style-type: lower-alpha;
+}
+
+.chatbox .chat ul li{
+  padding-left: 10px;
+}
+.chatbox .chat ol li {
+  padding-left: 10px;
+  margin-bottom: 0px;
+}
+
+.chatbox .incoming p {
+  border-radius: 0px 10px 10px 10px;
+  padding: 0.5rem;
+  color: #000;
+  background: #ffffff;
+}
+
+.chatbox .chat p.error {
+  border: 1px solid #ff0000;
+  color: #ababab;
+  background-color: #4d4d4d;
+}
+
+.summon-hermes {
+  background-color: white .2;
+  color: #6b75ffff
+  border: 2px solid #6b75ffff !important; /* Corrected the typo here */
+  border-radius: 15px;
+  padding: 10px 20px;
+  font-size: 2vh;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  top: 79%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10; /* Ensure it's above the input field */
+}
+
+.chat-input-container {
+  display: flex;
+  flex-direction: column-reverse;
+}
+.chatbot .chat-input {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  height: 12vh
+  padding: 3px 20px;
+  border-top: 2px solid #6b75ffff
+}
+
+.chat-input textarea {
+ 
+  width: 100%;
+  border: none;
+  backdrop-filter: blur(10px);
+  outline: none;
+  resize: none;
+  max-height: 180px;
+  padding: 15px 0px 0px 15px;
+  z-index:2000;
+}
+
+.chat-input span {
+  align-self: flex-end;
+  color: #020104;
+  cursor: pointer;
+  position: absolute;
+  right: .3rem;
+  bottom: .2rem;
+  visibility: hidden;
+ 
+}
+
+.botIcon {
+  margin-right: 10px;
+  display: inline-flex;
+  position: relative;
+  background: linear-gradient(to right, #8593ff, #d278dd);
+  border-radius: 50%;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.botIcon img {
+  width: 2.2rem;
+  height: 1.2rem; /* Keep the height proportional */
+   /* Optional: if you want the image itself to also be circular */
+
+}
+
+.botMessage {
+  
+}
+
+.chat-input textarea:valid ~ span {
+  visibility: visible;
+}
+
+
+.is-hidden {
+  display: none;
+}
+
+/* Show the loader when the hiding class is removed */
+#loader {
+  /* Ensure the loader is centered in the chat bubble if needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chatbox .status-message p {
+  background: #f0f0f0; /* Light background */
+  color: #333; /* Dark text for readability */
+  font-style: italic; /* To differentiate from regular messages */
+}
+
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
+  background: #fff;
+  border-radius: 25px;
+}
+
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 25px;
+}
+
+.chatbox .chat .code-container pre::-webkit-scrollbar {
+  width: 6px; /* Match the width of your existing scrollbars */
+  height: 6px; /* For horizontal scrollbar */
+}
+.chatbox .chat .code-container pre::-webkit-scrollbar-track {
+  background: #fff; /* Match the track color */
+  border-radius: 25px;
+}
+.chatbox .chat .code-container pre::-webkit-scrollbar-thumb {
+  background: #ccc; /* Match the thumb color */
+  border-radius: 25px;
+}
+
+.chatbox .error-message {
+    color: #721c24; /* Error text color */
+    background-color: #f9dcdf; /* Error background color */
+    border-color: #f5c6cb; /* Error border color */
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(114, 28, 36, .2);
+    
+}
+
+.chatbox .error-message p {
+  box-shadow: 0 0 0 0;
+  border-radius: 10px;
+}
+
+/* Error details styling within chatbox context */
+.chatbox .error-dropdown .error-details {
+    display: none; /* Hide details initially */
+    color: #721c24; /* Error details text color */
+    padding: 10px;
+}
+
+/* Dropdown arrow styles for error messages */
+.chatbox .error-dropdown .dropdown-arrow {
+    cursor: pointer; /* Change cursor to pointer */
+    font-weight: bold; /* Make arrow bold */
+    margin-left: 5px; /* Spacing after text */
+}
+
+/* Error message hover effect */
+.chatbox .error-message:hover {
+    background-color: #f1b0b7; /* Lighten background on hover */
+}
+
+/* Styles for the dropdown when error details are visible */
+.chatbox .error-dropdown .error-details.show {
+    display: block; /* Show details when class 'show' is added */
+}
+
+/* When screen width is less than or equal to 600px */
+@media (max-width: 600px) {
+    #prompt-suggestions .prompt-button {
+        display: none; /* Hide all prompts initially */
+    }
+    #prompt-suggestions .prompt-button:nth-child(-n+2) {
+        display: inline-block; /* Show only the first two prompts */
+    }
+}
+
+/* When screen width is less than or equal to 450px */
+@media (max-width: 450px) {
+    #prompt-suggestions .prompt-button:nth-child(-n+2) {
+        display: block; /* Stack the first two prompts */
+        width: 100%; /* Full width */
+        box-sizing: border-box;
+        margin-bottom: 10px; /* Space between buttons */
+    }
+}

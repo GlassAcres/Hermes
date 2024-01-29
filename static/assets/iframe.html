@@ -1,0 +1,701 @@
+  <!DOCTYPE html>
+  <html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Hermes | Trade Assistant</title>
+    <link rel="stylesheet" href="https://projecthermes.replit.app/static/style.css?v=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css" rel="stylesheet" />
+    
+  </head>
+  <body>
+     
+    <button class="chatbot-toggler" aria-label="Toggle Chatbot">
+      <span class="material-symbols-rounded">Help</span>
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  
+    <div class="chatbot-container">
+      
+      </div>
+
+        
+            <div id="landingPage" class="landing-page-layer">
+                <div id="landingPageContent" class="content">
+                    <img src="/static/assets/Animation.gif" alt="Descriptive Alt Text" class="landing-video" />
+                   
+                  <button id="summonHermesBtn" class="summon-hermes">Summon Hermes</button>
+                  <p>I can provide helpful information but I'm not perfect. There may be errors in my responses. For accurate and reliable information, verify with official sources at trade.gov.</p>
+            </div>
+        <div class="chatbot is-blurred">
+          <header>
+            <h2>Hermes</h2>
+          </header>
+          <ul class="chatbox">
+            <li class="chat incoming">
+              <span class="material-symbols-outlined">H</span>
+              <p>Hi there 👋<br>How can I help you today?</p>
+            </li>
+          </ul>
+          <div class="chat-input">
+            <button id="regenerateBtn" style="display: none;">Regenerate</button>
+            <textarea placeholder="Enter a message..." spellcheck="false" required></textarea>
+            <span id="send-btn" class="material-symbols-rounded">OK</span>
+          </div>
+        </div>
+    </div>
+    <style> /* Import Google font - Poppins */
+      @import url('https://fonts.googleapis.com/css2?family=Noto Sans:wght@400;500;600&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: #f3f1f3, 80%;
+      }
+
+      .chatbot-toggler {
+        position: fixed;
+        bottom: 30px;
+        right: 35px;
+        outline: none;
+        border: none;
+        height: 50px;
+        width: 50px;
+        display: none;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #cc0000; /* Red color */
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      }
+
+      .chatbot-toggler span {
+        color: #fff;
+        position: absolute;
+      }
+
+      .chatbot-toggler span:last-child,
+      body.show-chatbot .chatbot-toggler span:first-child {
+        opacity: 0;
+      }
+
+      body.show-chatbot .chatbot-toggler span:last-child {
+        opacity: 1;
+      }
+
+      .chatbot-container {
+          position: fixed;
+
+          width: 500px;
+          height: 590px; /* Set the height to match the chatbot */
+          display: flex;
+          justify-content: right;
+          align-items: right;
+      }
+
+      /* Landing Page Layer Styles */
+      #landingPage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, .8);
+        display: flex;
+        border-radius: 10px
+        justify-content: center;
+        align-items: center;
+        z-index: 10; /* Ensure it's above the chatbot container */
+      }
+
+      #landingPageContent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+      }
+
+      #landingPageContent p {
+        font-size: .6rem;
+        color: #1c1c1c;
+        margin: 20px 50px;
+        z-index:12;
+      }
+
+      #landingPageContent img {
+        max-width: 100%;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .landing-video {
+        width: 180px; /* Adjust the maximum width as needed */
+        border-radius: 10px;
+        margin-bottom: 20px;
+        z-index:12;
+      }
+
+      .chatbot {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          color: #fafafa;
+          border-radius: 15px;
+          overflow: hidden;
+          pointer-events: auto;
+          transform-origin: bottom right;
+          box-shadow: 0 0 128px 0 rgba(0,0,0,0.5),
+                      0 32px 64px -48px rgba(0,0,0,0.5);
+          transition: all 0.1s ease;
+        }
+
+      .chatbot.is-blurred .chatbox,
+      .chatbot.is-blurred .chat-input {
+          filter: blur(5px);
+      }
+
+      body.show-chatbot .chatbot {
+        opacity: 1;
+        pointer-events: auto;
+        filter: none;
+        transform: scale(1);
+      }
+
+
+
+      .chatbot header {
+        padding: 16px 0;
+        position: relative;
+        text-align: center;
+        color: #fff;
+        background: #CC0000;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        z-index: 11;
+      }
+
+      .chatbot header span {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        display: none;
+        cursor: pointer;
+        transform: translateY(-50%);
+      }
+
+      header h2 {
+        font-size: 1.4rem;
+      }
+
+      .chatbot .chatbox {
+        overflow-y: auto;
+        height: 510px;
+        padding: 30px 20px 100px;
+        background-color: rgba(255, 255, 255, 0.65);
+
+        -webkit-backdrop-filter: blur(3px);
+      }
+
+      .chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
+        background: #fff;
+        border-radius: 25px;
+      }
+
+      .chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 25px;
+      }
+
+      .chatbox .chat .code-container pre::-webkit-scrollbar {
+        width: 6px; /* Match the width of your existing scrollbars */
+        height: 6px; /* For horizontal scrollbar */
+      }
+      .chatbox .chat .code-container pre::-webkit-scrollbar-track {
+        background: #fff; /* Match the track color */
+        border-radius: 25px;
+      }
+      .chatbox .chat .code-container pre::-webkit-scrollbar-thumb {
+        background: #ccc; /* Match the thumb color */
+        border-radius: 25px;
+      }
+
+      .chatbox .chat {
+        display: flex;
+        list-style: none;
+        width: 100%;
+      }
+
+      .chatbox .outgoing {
+        margin: 10px 0;
+        justify-content: flex-end;
+      }
+
+      .chatbox .incoming span {
+        min-width: 32px !important;
+        height: 32px;
+        color: #fff;
+        cursor: default;
+        text-align: center;
+        line-height: 32px;
+        align-self: flex-end;
+        background: #CC0000;
+        border-radius: 4px;
+        margin: 0 10px 3px 0;
+      }
+
+      .chatbox .chat p {
+        white-space: pre-wrap;
+        overflow: wrap;
+        padding: 12px 10px;
+        border-radius: 18px;
+        max-width: 85%;
+        color: #fff;
+        font-size: 0.90rem;
+        background: #CC0000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        margin-bottom: 5px;
+        transition: opacity 0.3s ease;
+      }
+
+
+
+      .chatbox .chat .code-container {
+          background: #2d2d2d; /* Dark background for code blocks */
+          padding: 10px;
+          border-radius: 8px;
+          overflow: wrap; /* To contain the inner scrollable pre element */
+          max-width: 100%; /* Ensure it fits within the chat bubble */
+          margin-bottom: 5px;
+      }
+
+      /* Style for the actual code block (pre and code tags) */
+      .chatbox .chat pre {
+          margin: 0;
+          white-space: pre; /* Preserve formatting */
+          overflow-x: auto; /* Horizontal scrolling */
+      }
+
+      .chatbox .chat code {
+          display: block;
+          padding: 0;
+          overflow-y: auto; /* Vertical scrolling */
+          font-family: monospace; /* Font for code */
+          color: #f8f8f2; /* Light text color */
+      }
+      .chatbox .chat p * {
+        box-shadow: none;
+        background: transparent;
+        color: inherit;
+        font-size: inherit;
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+      }
+
+      /* Styles for Markdown headers */
+      .chatbox .chat h1 { font-size: 1.5em; }
+      .chatbox .chat h2 { font-size: 1.4em; }
+      .chatbox .chat h3 { font-size: 1.3em; }
+      .chatbox .chat h4 { font-size: 1.2em; }
+      .chatbox .chat h5 { font-size: 1.1em; }
+      .chatbox .chat h6 { font-size: 1em; }
+
+      .chatbox .chat pre[class*="language-"],
+      .chatbox .chat code[class*="language-"] {
+        background: #2d2d2d; /* Dark background for code blocks */
+        color: #f8f8f2; /* Light text color for code */
+        text-shadow: none; /* No text shadow */
+        font-family: 'Source Code Pro', monospace; /* Monospaced font */
+        padding: 0.5em; /* Padding inside code blocks */
+        margin: 0.5em 0; /* Margin around code blocks */
+        border-radius: 10px; /* Rounded corners */
+        overflow-x: overflow; /* Horizontal scrolling for long code */
+      }
+
+      /* Specific styles for strong, em, and list items */
+      .chatbox .chat p strong {
+        font-weight: bold;
+      }
+
+      .chatbox .chat p em {
+        font-style: italic;
+      }
+
+      .chatbox .chat ul{
+        padding-left: 10px;
+        list-style: bullets;
+      }
+
+      .chatbox .chat ol {
+        padding-left: 20px;
+        list-style: decimal;
+      }
+
+      .chatbox .chat ul ul {
+        padding-left: 10px
+        list-style: circle;
+      }
+
+      .chatbox .chat ol ul{
+        padding-left: 10px;
+        list-style: square;
+      }
+
+      .chatbox .chat ul ol{
+        padding-left: 10px;
+        list-style-type: lower-alpha;
+      }
+
+      .chatbox .chat ul li{
+        padding-left: 10px;
+      }
+      .chatbox .chat ol li {
+        padding-left: 10px;
+        margin-bottom: 5px;
+      }
+
+      .chatbox .incoming p {
+        border-radius: 10px 10px 10px 0;
+        color: #000;
+        background: #ffffff;
+      }
+
+      .chatbox .chat p.error {
+        color: #721c24;
+        background: #f8d7da;
+      }
+
+      .summon-hermes {
+        background-color: white .2;
+        color: #CC0000;
+        border: 2px solid red !important; /* Corrected the typo here */
+        border-radius: 15px;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+        position: absolute;
+        top: 79%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10; /* Ensure it's above the input field */
+      }
+
+      .chatbot .chat-input {
+        display: flex;
+        gap: 5px;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: #fff;
+        opacity: 90%;
+        padding: 3px 20px;
+        border-top: 2px solid #CC0000;
+      }
+
+      .chat-input textarea {
+        height: 55px;
+        width: 100%;
+        border: none;
+        backdrop-filter: blur(10px);
+        outline: none;
+        resize: none;
+        max-height: 180px;
+        padding: 15px 15px 15px 0;
+        font-size: 0.95rem;
+      }
+
+      .chat-input span {
+        align-self: flex-end;
+        color: #020104;
+        cursor: pointer;
+        height: 55px;
+        display: flex;
+        align-items: center;
+        visibility: hidden;
+        font-size: 1.35rem;
+      }
+
+      .chat-input textarea:valid ~ span {
+        visibility: visible;
+      }
+
+      @media (max-width: 490px) {
+        .chatbot-toggler {
+          right: 20px;
+          bottom: 20px;
+        }
+        .chatbot-container {
+          position: absolute;
+          width: 100%;
+          height: 100%; /* Set the height to match the chatbot */
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
+        .chatbot {
+          right: 0;
+          bottom: 0;
+          height: 100%;
+          border-radius: 0;
+          width: 100%;
+        }
+
+        .chatbot .chatbox {
+          height: 90%;
+          padding: 25px 15px 100px;
+        }
+
+        .chatbot .chat-input {
+          padding: 5px 15px;
+        }
+
+        .chatbot header span {
+          display: block;
+        }
+      }
+      .is-hidden {
+        display: none;
+      }
+
+      /* Show the loader when the hiding class is removed */
+      #loader {
+        /* Ensure the loader is centered in the chat bubble if needed */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .chatbox .status-message p {
+        background: #f0f0f0; /* Light background */
+        color: #333; /* Dark text for readability */
+        font-style: italic; /* To differentiate from regular messages */
+      }
+    </style>
+    <script>
+       const summonHermesBtn = document.getElementById("summonHermesBtn");
+       const chatbotContainer = document.querySelector('.chatbot');
+       const firstChatMessage = document.querySelector('.chatbox li:first-child');
+       const chatbotToggler = document.querySelector(".chatbot-toggler");
+       const closeBtn = document.querySelector(".close-btn");
+       const chatbox = document.querySelector(".chatbox");
+       const chatInput = document.querySelector(".chat-input textarea");
+       const sendChatBtn = document.querySelector(".chat-input span");
+
+       let userMessage = null; // Variable to store user's message
+       let currentThreadId = null; // Variable to store the current thread ID
+       const inputInitHeight = chatInput.scrollHeight;
+
+       // Initially hide the first chat message
+       firstChatMessage.style.display = 'none';
+
+       summonHermesBtn.addEventListener("click", () => {
+           // Show the first chat message and start the conversation
+           firstChatMessage.style.display = 'flex';
+
+           // Hide the Summon button and remove blur from the chat container
+           summonHermesBtn.style.display = 'none';
+
+           landingPageContent.style.display = 'none';
+           landingPage.style.background = '90%';
+           chatbotContainer.classList.remove("is-blurred");
+           document.body.classList.add("show-chatbot"); // Additional class to manage visibility
+           startConversation();
+       });
+
+       const createChatLi = (message, className, isMarkdown = false) => {
+           const chatLi = document.createElement("li");
+           chatLi.classList.add("chat", className);
+           let chatContent = className === "outgoing" ? `<p>${message}</p>` : `<span class="material-symbols-outlined">H</span><p>${message}</p>`;
+           chatLi.innerHTML = chatContent;
+
+           // Parse Markdown if required
+           if (isMarkdown && className === "incoming") {
+               const pElement = chatLi.querySelector("p");
+               pElement.innerHTML = marked.parse(message);
+
+               // Ensure all links open in a new tab
+               const anchors = pElement.querySelectorAll('a');
+               anchors.forEach(anchor => {
+                   anchor.setAttribute('target', '_blank');
+                   anchor.setAttribute('rel', 'noopener noreferrer'); // For security
+               });
+           }
+
+           return chatLi;
+       };
+
+       let statusMessages = {};  // Object to store status messages for each thread
+
+       const startConversation = () => {
+           console.log("Starting conversation...");
+           return fetch("https://hermes.markzahm.repl.co/start", {
+               method: "GET"
+           })
+           .then(res => res.json())
+           .then(data => {
+               currentThreadId = data.thread_id;
+               statusMessages[currentThreadId] = "Initializing...";  // Initialize status message for new thread
+               console.log("Conversation started with Thread ID:", currentThreadId);
+           })
+           .catch(error => {
+               console.error("Error starting conversation:", error);
+           });
+       };
+
+       const generateResponse = (chatElement) => {
+           if (!currentThreadId) {
+               console.error("No active thread. Cannot send message.");
+               return;
+           }
+
+           console.log("Generating response for message:", userMessage);
+           const API_URL = "https://hermes.markzahm.repl.co/chat";
+           const STATUS_URL = `https://hermes.markzahm.repl.co/status/${currentThreadId}`; // Adjusted to include thread ID
+
+           let statusPolling = setInterval(() => {
+               fetch(STATUS_URL)
+               .then(res => res.json())
+               .then(data => {
+                   if (data && data.statusMessage) {
+                       updateStatusMessage(chatElement, data.statusMessage);
+                   }
+               })
+               .catch(error => {
+                   console.error("Error fetching status:", error);
+               });
+           }, 500); // Poll every 2 seconds
+
+
+           fetch(API_URL, {
+               method: "POST",
+               headers: {"Content-Type": "application/json"},
+               body: JSON.stringify({ thread_id: currentThreadId, message: userMessage })
+           })
+           .then(res => res.json())
+           .then(data => {
+               clearInterval(statusPolling); // Stop polling when response is received
+               if (chatElement && chatElement.parentNode) {
+                   chatbox.removeChild(chatElement);
+               }
+               const incomingMessage = createChatLi(data.response.trim(), "incoming", true);
+               chatbox.appendChild(incomingMessage);
+           })
+           .catch(error => {
+               clearInterval(statusPolling); // Stop polling in case of error
+               if (chatElement) {
+                   chatElement.textContent = "Oops! Something went wrong. Please refresh your page.";
+               }
+               console.error("Chat error:", error);
+           })
+           .finally(() => chatbox.scrollTo(0, chatbox.scrollHeight));
+       };
+
+       function displayNextStatus(chatElement) {
+           if (statusQueue.length > 0) {
+               const nextStatus = statusQueue.shift();
+               updateStatusMessage(chatElement, nextStatus);
+               isDisplayingStatus = true;
+
+               setTimeout(() => {
+                   isDisplayingStatus = false;
+                   if (statusQueue.length > 0) {
+                       displayNextStatus(chatElement); // Display the next message if queue is not empty
+                   }
+               }, MIN_STATUS_DISPLAY_TIME);
+           }
+       }
+
+       function updateStatusMessage(chatElement, message) {
+           const paragraph = chatElement.querySelector("p");
+           if (paragraph) {
+               paragraph.textContent = message;
+           }
+       }
+
+
+
+       const handleChat = () => {
+           userMessage = chatInput.value.trim();
+           if (!userMessage) {
+               console.log("Empty message, not sending.");
+               return;
+           }
+
+           chatInput.value = "";
+           chatInput.style.height = `${inputInitHeight}px`;
+           const outgoingChatLi = createChatLi(userMessage, "outgoing");
+           chatbox.appendChild(outgoingChatLi);
+           chatbox.scrollTo(0, chatbox.scrollHeight);
+
+           if (!currentThreadId) {
+               startConversation().then(() => {
+                   const incomingChatLi = createChatLi("Working...", "incoming");
+                   chatbox.appendChild(incomingChatLi);
+                   chatbox.scrollTo(0, chatbox.scrollHeight);
+                   generateResponse(incomingChatLi);
+               });
+           } else {
+               const incomingChatLi = createChatLi("Working...", "incoming");
+               chatbox.appendChild(incomingChatLi);
+               chatbox.scrollTo(0, chatbox.scrollHeight);
+               generateResponse(incomingChatLi);
+           }
+       };
+
+
+
+       // ... [rest of your JavaScript code, such as event listeners and other functions] ...
+
+
+       chatInput.addEventListener("input", () => {
+           chatInput.style.height = `${inputInitHeight}px`;
+           chatInput.style.height = `${chatInput.scrollHeight}px`;
+       });
+
+       chatInput.addEventListener("keydown", (e) => {
+           if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+               e.preventDefault();
+               handleChat();
+           }
+       });
+
+       sendChatBtn.addEventListener("click", handleChat);
+
+       chatbotToggler.addEventListener("click", () => {
+           document.body.classList.toggle("show-chatbot");
+           chatbotContainer.classList.toggle("is-blurred");
+           if (!currentThreadId) {
+               console.log("No current thread ID, starting a new conversation.");
+               startConversation();
+           }
+       });
+
+       if (closeBtn) {
+           closeBtn.addEventListener("click", () => {
+               document.body.classList.remove("show-chatbot");
+               chatbotContainer.classList.add("is-blurred");
+               summonHermesBtn.style.display = 'block';
+           });
+       }
+
+      </script>
+
+  
+  </body>
+  </html>
+
+ 

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Hermes | Trade Assistant</title>
+  <link rel="stylesheet" href="/static/style.css?v=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css" rel="stylesheet" />
+  <script src="/static/script.js?v=2" defer></script>
+</head>
+<body>
+
+  <button class="chatbot-toggler" aria-label="Toggle Chatbot">
+    <span class="material-symbols-rounded">Help</span>
+    <span class="material-symbols-outlined">close</span>
+  </button>
+
+  <div class="chatbot-container">
+    <div id="landingPage" class="landing-page-layer">
+      <div id="landingPageContent" class="content">
+        <img src="/static/assets/Animation.gif" alt="Descriptive Alt Text" class="landing-video" />
+        <button id="summonHermesBtn" class="summon-hermes">Summon Hermes</button>
+        <p>I can provide helpful information but I'm not perfect. There may be errors in my responses. For accurate and reliable information, verify with official sources at trade.gov.</p>
+      </div>
+    </div>
+    <div class="chatbot">
+      <header>
+        <h2>Hermes</h2>
+        <div id="thread-dropdown-icon" class="thread-dropdown-icon">
+          <img src="/static/assets/ham.png" alt="Thread Icon"/> 
+          <span></span>
+          <span></span>
+          <span></span>
+      </header>
+      <div id="thread-list-container" class="thread-list-container">
+          <!-- Thread items will be dynamically added here -->
+      </div>
+      <ul class="chatbox">
+        <li class="chat incoming">
+          <div class="botIcon">
+              <img src="/static/assets/bot-icon.png" alt="Bot Icon">
+          </div>
+          <div class="botMessage">
+            <p>Hi there 👋<br>How can I help you today?</p>
+          </div>
+        </li>
+      </ul>
+      <div class="chat-input-container">
+        <!-- Prompt Suggestions Container -->
+        <div id="prompt-suggestions" class="prompt-suggestions">
+          
+        </div>
+        
+        <!-- Existing Chat Input -->
+        <div class="chat-input">
+            <textarea placeholder="Enter a message..." spellcheck="false" required></textarea>
+            <span id="send-btn" class="material-symbols-rounded">
+                <img src="static/assets/send.png" alt="Send" style="width: 3rem; height: 2rem;">
+            </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Chatbot iframe (starts hidden) -->
+  
+</body>
+</html>
