@@ -1,7 +1,7 @@
 import json
 import os
 import time
-from fastapi import FastAPI, HTTPException, Path, Body, Query
+from fastapi import FastAPI, HTTPException, Path, Body, Query, Request
 from pydantic import BaseModel
 from typing import List
 import uvicorn
@@ -20,17 +20,30 @@ from supabase_handlers.message_handler import MessageHandler
 from supabase_handlers.assistant_handler import AssistantManager
 from utils.modals.title_manager import TitleMaster
 from utils.logger import setup_custom_logger
-
-
 import logging
 from utils.models import AssistantRequest, AssistantUpdateRequest, ThreadCreateRequest, ThreadUpdateRequest, MessageCreateRequest, MessageUpdateRequest 
 from typing import Optional
-    
+
 # Setup logger
 logger = setup_custom_logger(__name__)
 logging.getLogger("fastapi").propagate = False
 logging.getLogger("uvicorn").propagate = False
 logging.getLogger("uvicorn.access").propagate = False
+
+# Initialize FastAPI app
+app = FastAPI()
+logger.info("FastAPI app initialized.")
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 supabase_url = os.environ['SUPABASE_URL']
 print("Supabase URL:", supabase_url)  # Add this line
@@ -42,16 +55,15 @@ encoding = tiktoken.get_encoding("cl100k_base")
 
 
 supabase_client = SupabaseClient().client
-api_interaction_handler = APIInteractionHandler(),
+api_interaction_handler = APIInteractionHandler(handler_name= "Endpoints")
 thread_handler = ThreadManager(api_key)
 message_handler = MessageHandler(api_key, thread_handler, api_interaction_handler)
 assistant_handler = AssistantManager()
 
 
 
-# Initialize FastAPI app
-app = FastAPI()
-logger.info("FastAPI app initialized.")
+
+
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -70,15 +82,7 @@ origins = [
 "https://modal-id.com/"]
 
 
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
-)
-    
+   
     
 
 # Create new assistant or load existing
@@ -87,17 +91,34 @@ logger.info(f"Assistant ID set to {assistant_id}.")
 
 latest_status_messages = {}
 
-# Define request model for chat     endpoint
+latest_webhook_data = {}
+# Define request model for chat endpoint
 class ChatRequest(BaseModel):
     thread_id: str
     message: str
-    name: Optional[str] = None  # New field for assistant name
-    user_id: Optional[str] = None        # New field for user ID
+    name: Optional[str] = None
+    user_id: Optional[str] = None
     instructions: Optional[str] = None
-    model: Optional[str] = None          # Optional model specification
-    tools: Optional[List[dict]] = None
+    model: Optional[str] = None
     file_ids: Optional[List[str]] = None
 
+
+
+
+@app.post("/webhook")
+async def webhook_receiver(request: Request):
+    global latest_webhook_data
+    data = await request.json()
+    logging.info(f"Data received in webhook: {data}")
+
+    # Store the data with the thread_id as the key
+    thread_id = data.get("threadId")
+    if thread_id:
+        latest_webhook_data[thread_id] = data
+        return {"status": "received"}
+    else:
+        return HTTPException(status_code=400, detail="threadId is missing in the webhook data")
+    
 
 @app.get('/status/{thread_id}')
 async def get_status(thread_id: str = Path(..., description="The ID of the thread")):
@@ -107,10 +128,12 @@ async def get_status(thread_id: str = Path(..., description="The ID of the threa
 
 # Start conversation thread
 @app.get('/start')
-async def start_conversation(name: Optional[str] = None, user_id: Optional[str] = None):
+async def start_conversation():
     logger.info("Starting Conversation...")
-    # Pass assistant_name and user_id to the create_thread method
-    thread = await thread_handler.create_thread(assistant_id=assistant_id, name=name, user_id=user_id)
+    thread_manager = ThreadManager(api_key=os.environ['OPENAI_API_KEY'])  # Pass only api_key
+    thread = await thread_manager.create_thread(assistant_id=assistant_id)
+    
+    
 
     logger.info(f"Conversation started with thread ID: {thread.id}")
     return {"thread_id": thread.id}
@@ -124,25 +147,43 @@ async def root():
 # Chat endpoint to generate response
 @app.post('/chat')
 async def chat_endpoint(request: ChatRequest):
-    global latest_status_messages
-    latest_status_messages[request.thread_id] = "Processing your request..."
-    logger.info(f"Chat endpoint called with thread ID: {request.thread_id} and message: {request.message}")
+    global latest_webhook_data
+   
+    logger.info(f"Received chat request: {request.json()}")
 
     if not request.thread_id:
         raise HTTPException(status_code=400, detail="Missing thread_id")
-
+        
+    if request.thread_id in latest_webhook_data:
+        overrides = latest_webhook_data[request.thread_id].get('overrides', {})
+        # Assuming overrides can directly update request's fields
+        request.model = overrides.get('model', request.model)
+        request.instructions = overrides.get('instructions', request.instructions)
+        request.user_id = overrides.get('user_id', request.user_id)
+        request.name = overrides.get('name', request.name)
+        request.file_ids = overrides.get('file_ids', request.file_ids)
+        
     # Send user message asynchronously
     await asyncio.to_thread(client.beta.threads.messages.create,
                             thread_id=request.thread_id,
                             role="user",
                             content=request.message)
-    logger.info(f"User message sent: {request.message}")
-    await message_handler.create_message(thread_id=request.thread_id, role="user", content=request.message, assistant_id=assistant_id, message_id=None )
+    logger.info("User message sent to OpenAI.")
+
+    # Log each parameter for clarity
+    logger.info(f"Thread ID: {request.thread_id}")
+    logger.info(f"User ID: {request.user_id if request.user_id else 'Not provided'}")
+    logger.info(f"Assistant Name: {request.name if request.name else 'Not provided'}")
+    logger.info(f"Model: {request.model if request.model else 'Default model'}")
+    logger.info(f"Instructions: {request.instructions if request.instructions else 'Not provided'}")
+    logger.info(f"File IDs: {request.file_ids if request.file_ids else 'Not provided'}")
 
     # Create and wait for run completion
     run = await asyncio.to_thread(client.beta.threads.runs.create,
                                   thread_id=request.thread_id,
                                   assistant_id=assistant_id,
+                                  model=request.model,
+                                  instructions=request.instructions,
                                   tools=[{
              "type": "function",
              "function": {
@@ -327,6 +368,7 @@ async def chat_endpoint(request: ChatRequest):
                                         thread_id=request.thread_id,
                                         run_id=run.id,
                                         tool_outputs=tool_outputs)
+                
 
         elif run_status.status == 'expired':
             logger.info("Run expired. Informing user and suggesting restart.")
@@ -370,59 +412,100 @@ async def chat_endpoint(request: ChatRequest):
 
 @app.post("/assistants/create")
 async def create_assistant_endpoint(request: Optional[AssistantRequest]):
-    if request is None:
-        raise HTTPException(status_code=400, detail="Request body is missing")
-    return await assistant_handler.create_assistant(request.model, request.instructions, request.name, request.file_ids)
+    # Extract request data
+    model = request.model if request else None
+    instructions = request.instructions if request else None
+    name = request.name if request else None
+    file_ids = request.file_ids if request else None
+
+    # Create the assistant
+    return await assistant_handler.create_assistant(model, instructions, name, file_ids)
 
 @app.put("/assistants/{assistant_id}/update")
 async def update_assistant_endpoint(assistant_id: str, request: AssistantUpdateRequest):
-    return await assistant_handler.update_assistant(assistant_id, request.model, request.instructions, request.name, request.file_ids)
+    # Extract request data
+    model = request.model if request else None
+    instructions = request.instructions if request else None
+    name = request.name if request else None
+    file_ids = request.file_ids if request else []
+    
+    if request is None:
+        raise HTTPException(status_code=400, detail="Request body is missing")
+    return await assistant_handler.update_assistant(assistant_id, model, instructions, name, file_ids)
 
 @app.get("/assistants/{assistant_id}")
 async def get_assistant_endpoint(assistant_id: str):
-    return await assistant_handler.get_assistant(assistant_id)
+    try:
+        assistant = await assistant_handler.get_assistant(assistant_id)
+        return assistant
+    except HTTPException as e:
+        raise e
 
 @app.get("/assistants")
-async def list_assistants_endpoint(start_date: Optional[str], end_date: Optional[str], limit: int):
-    return await assistant_handler.list_assistants(start_date, end_date, limit)
+async def list_assistants_endpoint(
+    start_date: Optional[str] = Query(None, description="Start date for filtering (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date for filtering (YYYY-MM-DD)"),
+    limit: int = Query(20, description="Maximum number of records to return"),
+    
+):
+    try:
+        assistants = await assistant_handler.list_assistants(
+            start_date=start_date,
+            end_date=end_date,
+            limit=limit,
+         
+        )
+        return assistants
+    except HTTPException as e:
+        raise e
 
 @app.delete("/assistants/{assistant_id}/delete")
 async def delete_assistant_endpoint(assistant_id: str):
-    result = await assistant_handler.delete_assistant(assistant_id)
-    if result:
-        return {"detail": "Assistant deleted successfully"}
-    else:
-        raise HTTPException(status_code=404, detail="Assistant not found")
-
+    try:
+        delete_result = await assistant_handler.delete_assistant(assistant_id)
+        if delete_result:
+            return {"detail": "Assistant deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Assistant not found")
+    except HTTPException as e:
+        raise e
 
 # THREAD MANAGER ENDPOINTS
 
 
 @app.post("/threads")
 async def create_thread(request: Optional[ThreadCreateRequest] = None):
-    return await thread_handler.create_thread(request.assistant_id, request.assistant_name, request.user_id, request.user_name)
+    return await thread_handler.create_thread(request)
 
 @app.get("/threads/{thread_id}")
 async def get_thread(thread_id: str):
     return await thread_handler.get_thread(thread_id)
 
 @app.get("/threads")
-async def list_threads(start_date: Optional[str], end_date: Optional[str], limit: int):
+async def list_threads(
+    start_date: Optional[str] = Query(None, regex="^\d{4}-\d{2}-\d{2}$"),
+    end_date: Optional[str] = Query(None, regex="^\d{4}-\d{2}-\d{2}$"),
+    limit: int = Query(10, gt=0)
+):
+    # Call the updated list_threads method with the start_date, end_date, and limit
     return await thread_handler.list_threads(start_date, end_date, limit)
+
 
 @app.put("/threads/{thread_id}")
 async def update_thread(thread_id: str, request: ThreadUpdateRequest):
-    return await thread_handler.update_thread(thread_id, request.status, request.assistant_name)
+    return await thread_handler.update_thread(thread_id, request, assistant_id)
+
 
 @app.delete("/threads/{thread_id}")
 async def delete_thread(thread_id: str):
-    return await thread_handler.delete_thread(thread_id)
+    await thread_handler.delete_thread(thread_id)
+    return {"detail": "Thread deleted successfully"}
 
 # MESSAGE MANAGER ENDPOINTS
 
 @app.post("/messages")
 async def create_message(request: MessageCreateRequest):
-    return await message_handler.create_message(request.name, request.thread_id, request.role, request.content, request.assistant_id, request.user_id)
+    return await message_handler.create_message(request.thread_id, request.role, request.content, assistant_id)
 
 @app.get("/messages/{thread_id}/{message_id}")
 async def get_message(thread_id: str, message_id: str):
@@ -435,7 +518,6 @@ async def update_message(thread_id: str, message_id: str, request: MessageUpdate
 @app.get("/messages/{thread_id}")
 async def list_messages(thread_id: str):
     return await message_handler.list_messages(thread_id)
-
 
 # Run server using Uvicorn
 if __name__ == '__main__':

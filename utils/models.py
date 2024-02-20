@@ -8,26 +8,31 @@ class Tool(BaseModel):
 
 class AssistantRequest(BaseModel):
     model: str
+    user_id: str
     instructions: Optional[str] = None
     name: Optional[str] = None
     file_ids: Optional[List[str]] = []
-  
+    tools: Optional[List[Tool]] = []
 
 
 class AssistantUpdateRequest(BaseModel):
     model: str
+    user_id: str
     instructions: Optional[str] = None
     name: Optional[str] = None
     file_ids: Optional[List[str]] = []
+    tools: Optional[List[Tool]] = []
     
-
 class ThreadCreateRequest(BaseModel):
     messages: List[Dict[str, str]]
     metadata: Optional[dict] = None
     assistant: Optional[str] = None 
+    user_id: Optional[str] = None
 class ThreadUpdateRequest(BaseModel):
     metadata: Optional[dict] = None
     assistant: Optional[str] = None 
+    user_id: Optional[str] = None
+    
 
 class ChatRequest(BaseModel):
     thread_id: str
@@ -37,15 +42,17 @@ class ChatRequest(BaseModel):
     model: Optional[str] = None
     tools: Optional[List[dict]] = None
     file_ids: Optional[List[str]] = None
+    user_id: Optional[str] = None
 
 
 class ThreadModel(BaseModel):
     thread_id: str
-    assistant_name: Optional[str]
+    name: Optional[str]
     assistant_id: Optional[str]
     status: Optional[str]
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
+    user_id: Optional[str]
 
 class MessageModel(BaseModel):
     message_id: str
@@ -54,6 +61,8 @@ class MessageModel(BaseModel):
     role: str
     created_at: Optional[datetime]
     assistant_id: str
+    user_id: str
+    name: Optional[str]
 class MessageCreateRequest(BaseModel):
     thread_id: str = Field(..., description="The ID of the thread to create a message for.")
     role: str = Field(..., description="The role of the entity that is creating the message. Currently only user is supported.")

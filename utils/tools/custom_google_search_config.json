@@ -1,0 +1,14 @@
+{
+  "type": "function",
+  "function": {
+    "name": "google_custom_search",
+    "description": "Perform a custom Google search.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {"type": "string", "description": "Search query string"}
+      },
+      "required": ["query"]
+    }
+  }
+}

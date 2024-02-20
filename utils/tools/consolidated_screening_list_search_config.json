@@ -1,0 +1,25 @@
+{
+  "type": "function",
+  "function": {
+    "name": "consolidated_screening_list_search",
+    "description": "Search the Consolidated Screening List",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "description": "Name to search for"},
+        "fuzzy_name": {"type": "string", "description": "Fuzzy name to search for"},
+        "sources": {"type": "string", "description": "Specific sources to search within"},
+        "types": {"type": "string", "description": "Types of entities to search for"},
+        "countries": {"type": "string", "description": "Countries associated with the entities"},
+        "address": {"type": "string", "description": "Address of the entity"},
+        "city": {"type": "string", "description": "City associated with the entity"},
+        "state": {"type": "string", "description": "State associated with the entity"},
+        "postal_code": {"type": "string", "description": "Postal code associated with the entity"},
+        "full_address": {"type": "string", "description": "Full address to search for"},
+        "offset": {"type": "integer", "description": "Offset for pagination"},
+        "size": {"type": "integer", "description": "Number of results to return"}
+      },
+      "required": []
+    }
+  }
+}

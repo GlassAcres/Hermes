@@ -37,14 +37,12 @@ class AssistantManager(SupabaseClient):
     async def create_assistant(self, model, instructions=None, name=None, file_ids=None):
         try:
             assistant_data = {
-                "assistant_id": None,
                 "name": name,
                 "model": model,
                 "instructions": instructions,
                 "file_ids": file_ids,
                 "created_at": get_local_time(),
-                "updated_at": get_local_time(),
-                "user_id": None
+                "updated_at": get_local_time()
             }
             response = await asyncio.to_thread(lambda: self.client.table('assistants').insert(assistant_data).execute())
             self.logger.info(f"Assistant created. Response: {response}")
@@ -58,7 +56,6 @@ class AssistantManager(SupabaseClient):
             db_update_data = {
                 "updated_at": datetime.now(timezone("America/New_York")).isoformat(),
                 "name": name,
-                "instructions": instructions,
                 "model": model,
                 "instructions": instructions,
                 "file_ids": file_ids

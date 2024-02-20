@@ -1,0 +1,26 @@
+{
+  "type": "function",
+  "function": {
+    "name": "bsp_search",
+    "description": "Get data on Business Service Providers, filtered by category and location.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "categories": {
+          "type": "string",
+          "description": "Categories to filter the search"
+        },
+        "ita_offices": {
+          "type": "string",
+          "description": "ITA offices to filter the search"
+        },
+        "size": {
+          "type": "integer",
+          "description": "The number of results to return",
+          "default": 5
+        }
+      },
+      "required": ["q"]
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "type": "function",
+  "function": {
+    "name": "trade_leads_search",
+    "description": "Search for trade leads based on various criteria",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "q": {
+          "type": "string",
+          "description": "Query string for searching trade leads"
+        },
+        "country_codes": {
+          "type": "string",
+          "description": "Country codes to filter the search"
+        },
+        "tender_start_date_range_from": {
+          "type": "string",
+          "format": "date",
+          "description": "Start date for tender date range"
+        },
+        "tender_start_date_range_to": {
+          "type": "string",
+          "format": "date",
+          "description": "End date for tender date range"
+        },
+        "contract_start_date_range_from": {
+          "type": "string",
+          "format": "date",
+          "description": "Start date for contract date range"
+        },
+        "contract_start_date_range_to": {
+          "type": "string",
+          "format": "date",
+          "description": "End date for contract date range"
+        },
+        "size": {
+          "type": "integer",
+          "description": "Number of results to return"
+        },
+        "offset": {
+          "type": "integer",
+          "description": "Offset for pagination"
+        }
+      },
+      "required": ["q"]
+    }
+  }
+}
